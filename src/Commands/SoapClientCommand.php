@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Elektrum\SoapClient\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class SoapClientCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'soap-client';
 
     public $description = 'My command';
 
