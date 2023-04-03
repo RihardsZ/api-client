@@ -1,6 +1,6 @@
 <?php
 
-namespace Elektrum\SoapClient\Commands;
+namespace CubeSystems\SoapClient\Commands;
 
 use Illuminate\Console\Command;
 

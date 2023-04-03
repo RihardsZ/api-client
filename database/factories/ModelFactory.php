@@ -1,6 +1,6 @@
 <?php
 
-namespace Elektrum\SoapClient\Database\Factories;
+namespace CubeSystems\SoapClient\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 

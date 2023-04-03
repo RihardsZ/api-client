@@ -1,10 +1,9 @@
 {
-    "name": "elektrum/soap-client",
+    "name": "cubesystems/soap-client",
     "description": "SOAP analogue of Laravel HTTP client",
     "keywords": [
-        "elektrum",
         "laravel",
-        "soap-client"
+        "soap"
     ],
     "license": "MIT",
     "authors": [
@@ -16,15 +15,18 @@
     ],
     "require": {
         "php": "^8.0",
+        "ext-bcmath": "*",
         "ext-intl": "*",
         "ext-soap": "*",
         "ext-sodium": "*",
         "ext-xsl": "*",
         "codedredd/laravel-soap": "^3.0",
         "illuminate/contracts": "^9.0",
+        "phpro/soap-client": "^2.2",
         "spatie/laravel-package-tools": "^1.14.0"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.8",
         "laravel/pint": "^1.0",
         "nunomaduro/collision": "^6",
         "nunomaduro/larastan": "^2.0.1",
@@ -37,13 +39,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Elektrum\\SoapClient\\": "src",
-            "Elektrum\\SoapClient\\Database\\Factories\\": "database/factories"
+            "CubeSystems\\SoapClient\\": "src",
+            "CubeSystems\\SoapClient\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Elektrum\\SoapClient\\Tests\\": "tests"
+            "CubeSystems\\SoapClient\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -64,10 +66,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Elektrum\\SoapClient\\SoapClientServiceProvider"
+                "CubeSystems\\SoapClient\\SoapClientServiceProvider"
             ],
             "aliases": {
-                "SoapClient": "Elektrum\\SoapClient\\Facades\\SoapClient"
+                "SoapClient": "CubeSystems\\SoapClient\\Facades\\Soap"
             }
         }
     },

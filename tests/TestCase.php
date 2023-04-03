@@ -1,10 +1,10 @@
 <?php
 
-namespace Elektrum\SoapClient\Tests;
+namespace CubeSystems\SoapClient\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Elektrum\SoapClient\SoapClientServiceProvider;
+use CubeSystems\SoapClient\SoapClientServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -13,7 +13,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Elektrum\\SoapClient\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'CubeSystems\\SoapClient\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
     }
 

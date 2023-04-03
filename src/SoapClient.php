@@ -1,6 +1,6 @@
 <?php
 
-namespace Elektrum\SoapClient;
+namespace CubeSystems\SoapClient;
 
 class SoapClient
 {

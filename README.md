@@ -5,7 +5,7 @@
 You can install the package via composer:
 
 ```bash
-composer require elektrum/soap-client
+composer require cubesystems/soap-client
 ```
 
 You can publish and run the migrations with:
@@ -37,8 +37,8 @@ php artisan vendor:publish --tag="soap-client-views"
 ## Usage
 
 ```php
-$soapClient = new Elektrum\SoapClient();
-echo $soapClient->echoPhrase('Hello, Elektrum!');
+$soapClient = new CubeSystems\SoapClient();
+echo $soapClient->echoPhrase('Hello, Soap Client!');
 ```
 
 ## Testing
