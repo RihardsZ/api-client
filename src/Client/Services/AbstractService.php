@@ -2,6 +2,7 @@
 
 namespace CubeSystems\SoapClient\Client\Services;
 
+use CubeSystems\SoapClient\Client\Headers\Header;
 use CubeSystems\SoapClient\Client\SoapClient;
 use CubeSystems\SoapClient\Client\Contracts\Endpoint;
 use CubeSystems\SoapClient\Client\Contracts\Service;
@@ -16,10 +17,15 @@ abstract class AbstractService implements Service
 
     private SoapClient $client;
 
+    /** @var Collection<Header> */
+    private Collection $headers;
+
     public function __construct(Endpoint $endpoint, Collection $headers)
     {
+        $this->headers = $headers;
         $this->endpoint = $endpoint;
-        $this->client = Soap::baseWsdl($this->getFullPath())
+
+        $this->client = Soap::baseWsdl($this->getUrl())
             ->withSoapHeaders($headers)
             ->withOptions([
                 'trace' => true
@@ -31,7 +37,12 @@ abstract class AbstractService implements Service
         return $this->client;
     }
 
-    private function getFullPath(): string
+    public function getHeaders(): Collection
+    {
+        return $this->headers;
+    }
+
+    public function getUrl(): string
     {
         return $this->endpoint->getWsdlUrl($this->getPath());
     }
