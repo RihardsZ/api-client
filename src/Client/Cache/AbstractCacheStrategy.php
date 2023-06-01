@@ -1,10 +1,10 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Cache;
+namespace CubeSystems\ApiClient\Client\Cache;
 
 use Closure;
-use CubeSystems\SoapClient\Client\Contracts\CacheStrategy;
-use CubeSystems\SoapClient\Client\Contracts\Response;
+use CubeSystems\ApiClient\Client\Contracts\CacheStrategy;
+use CubeSystems\ApiClient\Client\Contracts\Response;
 use Illuminate\Contracts\Cache\Repository;
 
 abstract class AbstractCacheStrategy implements CacheStrategy

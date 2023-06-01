@@ -1,14 +1,16 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Cache;
+namespace CubeSystems\ApiClient\Client\Cache;
 
 use Closure;
-use CubeSystems\SoapClient\Client\Contracts\Response;
+use CubeSystems\ApiClient\Client\Contracts\Response;
 use Illuminate\Support\Facades\Cache;
 
 class TimeIntervalCacheStrategy extends AbstractCacheStrategy
 {
     private const DEFAULT_CACHING_TIME_SECONDS = 10 * 60;
+
+    private int $cachingTimeSeconds = self::DEFAULT_CACHING_TIME_SECONDS;
 
     public function __construct()
     {
@@ -20,6 +22,13 @@ class TimeIntervalCacheStrategy extends AbstractCacheStrategy
 
     public function cache(string $cacheKey, Closure $callback): Response
     {
-        return $this->getCache()->remember($cacheKey, self::DEFAULT_CACHING_TIME_SECONDS, $callback);
+        return $this->getCache()->remember($cacheKey, $this->cachingTimeSeconds, $callback);
+    }
+
+    public function setCachingTimeSeconds(int $cachingTimeSeconds): TimeIntervalCacheStrategy
+    {
+        $this->cachingTimeSeconds = $cachingTimeSeconds;
+
+        return $this;
     }
 }
