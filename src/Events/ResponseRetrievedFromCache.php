@@ -1,11 +1,11 @@
 <?php
 
-namespace CubeSystems\SoapClient\Events;
+namespace CubeSystems\ApiClient\Events;
 
-use CubeSystems\SoapClient\Client\Contracts\Method;
-use CubeSystems\SoapClient\Client\Contracts\Payload;
-use CubeSystems\SoapClient\Client\Contracts\Response;
-use CubeSystems\SoapClient\Client\Stats\CallStats;
+use CubeSystems\ApiClient\Client\Contracts\Method;
+use CubeSystems\ApiClient\Client\Contracts\Payload;
+use CubeSystems\ApiClient\Client\Contracts\Response;
+use CubeSystems\ApiClient\Client\Stats\CallStats;
 use Illuminate\Foundation\Events\Dispatchable;
 
 class ResponseRetrievedFromCache
