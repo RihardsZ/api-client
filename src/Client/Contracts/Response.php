@@ -1,8 +1,8 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Contracts;
+namespace CubeSystems\ApiClient\Client\Contracts;
 
-use CubeSystems\SoapClient\Client\Responses\ResponseStatusInfo;
+use CubeSystems\ApiClient\Client\Responses\ResponseStatusInfo;
 
 interface Response
 {

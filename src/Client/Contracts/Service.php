@@ -1,13 +1,13 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Contracts;
+namespace CubeSystems\ApiClient\Client\Contracts;
 
-use CubeSystems\SoapClient\Client\SoapClient;
+use CubeSystems\ApiClient\Client\ApiClient;
 use Illuminate\Support\Collection;
 
 interface Service
 {
-    public function getClient(): SoapClient;
+    public function getClient(): ApiClient;
 
     public function getHeaders(): Collection;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Contracts;
+namespace CubeSystems\ApiClient\Client\Contracts;
 
 use Closure;
 use Illuminate\Contracts\Cache\Repository;
