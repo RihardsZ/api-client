@@ -1,8 +1,8 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Payloads;
+namespace CubeSystems\ApiClient\Client\Payloads;
 
-use CubeSystems\SoapClient\Client\Contracts\Payload;
+use CubeSystems\ApiClient\Client\Contracts\Payload;
 
 abstract class AbstractPayload implements Payload
 {

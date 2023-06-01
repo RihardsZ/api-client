@@ -1,8 +1,8 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Responses;
+namespace CubeSystems\ApiClient\Client\Responses;
 
-use CubeSystems\SoapClient\Client\Contracts\Response;
+use CubeSystems\ApiClient\Client\Contracts\Response;
 
 abstract class AbstractResponse implements Response
 {
