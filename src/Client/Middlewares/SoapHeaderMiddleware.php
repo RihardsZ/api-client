@@ -1,8 +1,8 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Middlewares;
+namespace CubeSystems\ApiClient\Client\Middlewares;
 
-use CubeSystems\SoapClient\Client\Headers\Header;
+use CubeSystems\ApiClient\Client\Headers\Header;
 use Http\Client\Common\Plugin;
 use Http\Promise\Promise;
 use Illuminate\Support\Collection;
@@ -17,9 +17,11 @@ use function VeeWee\Xml\Dom\Builder\namespaced_element;
 use function VeeWee\Xml\Dom\Builder\element;
 use function VeeWee\Xml\Dom\Builder\value;
 
+// this is guzzle middleware, do not confuse with Laravel middleware
 class SoapHeaderMiddleware implements Plugin
 {
     private $headers;
+
     public function __construct(Collection $headers)
     {
         $this->headers = $this->transformToSoapHeaders($headers);

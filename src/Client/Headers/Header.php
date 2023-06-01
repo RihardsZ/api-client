@@ -1,6 +1,6 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Headers;
+namespace CubeSystems\ApiClient\Client\Headers;
 
 class Header
 {
@@ -20,9 +20,11 @@ class Header
         return $this->namespace;
     }
 
-    public function setNamespace(string $namespace): void
+    public function setNamespace(string $namespace): self
     {
         $this->namespace = $namespace;
+
+        return $this;
     }
 
     public function getName(): string
@@ -30,9 +32,11 @@ class Header
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
     public function getValue(): string
@@ -40,8 +44,10 @@ class Header
         return $this->value;
     }
 
-    public function setValue(string $value): void
+    public function setValue(string $value): self
     {
         $this->value = $value;
+
+        return $this;
     }
 }

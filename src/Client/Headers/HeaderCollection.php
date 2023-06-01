@@ -1,6 +1,6 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Headers;
+namespace CubeSystems\ApiClient\Client\Headers;
 
 use Illuminate\Support\Collection;
 
