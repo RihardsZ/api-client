@@ -1,8 +1,10 @@
 {
-    "name": "cubesystems/soap-client",
-    "description": "SOAP analogue of Laravel HTTP client",
+    "name": "cubesystems/api-client",
+    "description": "API Client provides a modular way to consume API's for Laravel.",
     "keywords": [
         "laravel",
+        "api",
+        "services",
         "soap"
     ],
     "license": "MIT",
@@ -18,11 +20,10 @@
         "ext-bcmath": "*",
         "ext-intl": "*",
         "ext-soap": "*",
-        "ext-sodium": "*",
         "ext-xsl": "*",
         "codedredd/laravel-soap": "^3.0",
         "illuminate/contracts": "^9.0",
-        "phpro/soap-client": "^2.2",
+        "nesbot/carbon": "^2.66",
         "spatie/laravel-package-tools": "^1.14.0"
     },
     "require-dev": {
@@ -35,17 +36,17 @@
         "pestphp/pest-plugin-laravel": "^1.0",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpstan/phpstan-phpunit": "^1.0"
+        "phpstan/phpstan-phpunit": "^1.0",
+        "spatie/pest-plugin-test-time": "^1.1"
     },
     "autoload": {
         "psr-4": {
-            "CubeSystems\\SoapClient\\": "src",
-            "CubeSystems\\SoapClient\\Database\\Factories\\": "database/factories"
+            "CubeSystems\\ApiClient\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "CubeSystems\\SoapClient\\Tests\\": "tests"
+            "CubeSystems\\ApiClient\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -66,10 +67,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "CubeSystems\\SoapClient\\SoapClientServiceProvider"
+                "CubeSystems\\ApiClient\\ApiClientServiceProvider"
             ],
             "aliases": {
-                "SoapClient": "CubeSystems\\SoapClient\\Facades\\Soap"
+                "ApiClient": "CubeSystems\\ApiClient\\Facades\\Api"
             }
         }
     },
