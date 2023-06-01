@@ -1,21 +1,22 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Services;
+namespace CubeSystems\ApiClient\Client\Services;
 
-use CubeSystems\SoapClient\Client\Headers\Header;
-use CubeSystems\SoapClient\Client\SoapClient;
-use CubeSystems\SoapClient\Client\Contracts\Endpoint;
-use CubeSystems\SoapClient\Client\Contracts\Service;
-use CubeSystems\SoapClient\Facades\Soap;
+use CodeDredd\Soap\SoapClient as BaseClient;
+use CubeSystems\ApiClient\Client\Headers\Header;
+use CubeSystems\ApiClient\Client\ApiClient;
+use CubeSystems\ApiClient\Client\Contracts\Endpoint;
+use CubeSystems\ApiClient\Client\Contracts\Service;
+use CubeSystems\ApiClient\Facades\Api;
 use Illuminate\Support\Collection;
 
 abstract class AbstractService implements Service
 {
     protected const SERVICE_PATH = '';
 
-    private Endpoint $endpoint;
+    protected BaseClient $client;
 
-    private SoapClient $client;
+    private Endpoint $endpoint;
 
     /** @var Collection<Header> */
     private Collection $headers;
@@ -25,14 +26,14 @@ abstract class AbstractService implements Service
         $this->headers = $headers;
         $this->endpoint = $endpoint;
 
-        $this->client = Soap::baseWsdl($this->getUrl())
+        $this->client = Api::baseWsdl($this->getUrl())
             ->withSoapHeaders($headers)
             ->withOptions([
                 'trace' => true
             ]);
     }
 
-    public function getClient(): SoapClient
+    public function getClient(): ApiClient
     {
         return $this->client;
     }
