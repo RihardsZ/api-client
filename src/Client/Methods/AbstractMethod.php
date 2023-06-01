@@ -1,17 +1,17 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Methods;
+namespace CubeSystems\ApiClient\Client\Methods;
 
 use CodeDredd\Soap\Client\Response as RawResponse;
 
-use CubeSystems\SoapClient\Client\Contracts\CacheStrategy;
-use CubeSystems\SoapClient\Client\Contracts\Method;
-use CubeSystems\SoapClient\Client\Contracts\Payload;
-use CubeSystems\SoapClient\Client\Contracts\Response;
-use CubeSystems\SoapClient\Client\Contracts\Service;
-use CubeSystems\SoapClient\Client\Stats\CallStats;
-use CubeSystems\SoapClient\Events\ResponseRetrievedFromCache;
-use CubeSystems\SoapClient\Events\ServiceCalled;
+use CubeSystems\ApiClient\Client\Contracts\CacheStrategy;
+use CubeSystems\ApiClient\Client\Contracts\Method;
+use CubeSystems\ApiClient\Client\Contracts\Payload;
+use CubeSystems\ApiClient\Client\Contracts\Response;
+use CubeSystems\ApiClient\Client\Contracts\Service;
+use CubeSystems\ApiClient\Client\Stats\CallStats;
+use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
+use CubeSystems\ApiClient\Events\ApiCalled;
 
 abstract class AbstractMethod implements Method
 {
@@ -33,7 +33,15 @@ abstract class AbstractMethod implements Method
             return $this->retrieveFromCache($payload);
         }
 
-        return $this->retrieveFromRemote($payload);
+        $response = $this->retrieveFromRemote($payload);
+
+        if (!$response->getStatusInfo()->isTechnicalError()) {
+            $this->cacheStrategy->cache($payload->getCacheKey(), function () use ($response) {
+                return $response;
+            });
+        }
+
+        return $response;
     }
 
     public function getName(): string
@@ -46,9 +54,9 @@ abstract class AbstractMethod implements Method
         return $this->service;
     }
 
-    abstract protected function toResponse(array $rawResponse): Response;
+    abstract protected function toResponse(array $rawResponse, int $httpCode): Response;
 
-    private function retrieveFromCache(Payload $payload)
+    private function retrieveFromCache(Payload $payload): Response
     {
         $response = $this->cacheStrategy->getCache()->get($payload->getCacheKey());
 
@@ -67,28 +75,26 @@ abstract class AbstractMethod implements Method
 
     private function retrieveFromRemote(Payload $payload): Response
     {
-        return $this->cacheStrategy->cache($payload->getCacheKey(), function () use ($payload) {
-            $microtimeFrom = microtime(true);
+        $microtimeFrom = microtime(true);
 
-            $rawResponse = $this->service->getClient()->call(
-                $this->getName(),
-                $payload->toArray()
-            );
+        $rawResponse = $this->service->getClient()->call(
+            $this->getName(),
+            $payload->toArray()
+        );
 
-            $microtimeTo = microtime(true);
+        $microtimeTo = microtime(true);
 
-            $response = $this->toResponse($rawResponse->json());
+        $response = $this->toResponse($rawResponse->json(), $rawResponse->status());
 
-            $this->dispatchServiceCalledEvent(
-                $payload,
-                $rawResponse,
-                $response,
-                $microtimeFrom,
-                $microtimeTo
-            );
+        $this->dispatchServiceCalledEvent(
+            $payload,
+            $rawResponse,
+            $response,
+            $microtimeFrom,
+            $microtimeTo
+        );
 
-            return $response;
-        });
+        return $response;
     }
 
     private function dispatchServiceCalledEvent(
@@ -100,7 +106,29 @@ abstract class AbstractMethod implements Method
     ): void {
         $debugInfo = $this->service->getClient()->debugLastSoapRequest();
 
+        $stats = $this->makeCallStats(
+            $rawResponse,
+            $debugInfo,
+            $microtimeFrom,
+            $microtimeTo
+        );
+
+        ApiCalled::dispatch(
+            $this,
+            $payload,
+            $response,
+            $stats
+        );
+    }
+
+    protected function makeCallStats(
+        RawResponse $rawResponse,
+        array $debugInfo,
+        float $microtimeFrom,
+        float $microtimeTo
+    ): CallStats {
         $stats = new CallStats();
+
         $stats
             ->setRequestString($debugInfo['request']['body'])
             ->setRequestHeaders(collect($rawResponse->transferStats->getRequest()->getHeaders()))
@@ -110,11 +138,6 @@ abstract class AbstractMethod implements Method
             ->setMicrotimeFinish($microtimeTo)
             ->setTransferStats($rawResponse->transferStats);
 
-        ServiceCalled::dispatch(
-            $this,
-            $payload,
-            $response,
-            $stats
-        );
+        return $stats;
     }
 }
