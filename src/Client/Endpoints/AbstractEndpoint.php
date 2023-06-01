@@ -1,8 +1,8 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Endpoints;
+namespace CubeSystems\ApiClient\Client\Endpoints;
 
-use CubeSystems\SoapClient\Client\Contracts\Endpoint;
+use CubeSystems\ApiClient\Client\Contracts\Endpoint;
 
 abstract class AbstractEndpoint implements Endpoint
 {
