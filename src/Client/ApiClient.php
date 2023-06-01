@@ -1,12 +1,12 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client;
+namespace CubeSystems\ApiClient\Client;
 
 use CodeDredd\Soap\SoapClient as BaseClient;
-use CubeSystems\SoapClient\Client\Middlewares\SoapHeaderMiddleware;
+use CubeSystems\ApiClient\Client\Middlewares\SoapHeaderMiddleware;
 use Illuminate\Support\Collection;
 
-class SoapClient extends BaseClient
+class ApiClient extends BaseClient
 {
     public function withSoapHeaders(Collection $headers): static
     {

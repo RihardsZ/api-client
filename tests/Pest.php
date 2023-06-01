@@ -1,5 +1,5 @@
 <?php
 
-use CubeSystems\SoapClient\Tests\TestCase;
+use CubeSystems\ApiClient\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
