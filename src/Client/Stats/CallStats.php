@@ -1,6 +1,6 @@
 <?php
 
-namespace CubeSystems\SoapClient\Client\Stats;
+namespace CubeSystems\ApiClient\Client\Stats;
 
 use GuzzleHttp\TransferStats;
 use Illuminate\Support\Collection;
