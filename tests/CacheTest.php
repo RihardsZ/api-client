@@ -63,9 +63,24 @@ it('calls service only once for given payload when using RequestCache', function
     $payload1 = app(TestPayload::class);
     $payload1->setParameter('test');
 
-    /** @var TestPayload $payload2 */
-    $payload2 = app(TestPayload::class);
-    $payload2->setParameter('something else');
+    /** @var TestMethodWithRequestCache $method */
+    $method = app(TestMethodWithRequestCache::class);
+
+    $method->call($payload1);
+    Event::assertDispatchedTimes(ApiCalled::class, 1);
+    Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 0);
+
+    $method->call($payload1);
+    // no additional ServiceCalled events
+    Event::assertDispatchedTimes(ApiCalled::class, 1);
+    // one additional ResponseRetrievedFromCache event
+    Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 1);
+});
+
+it('calls service for given payload after setting cache not to be used when using RequestCache', function () {
+    /** @var TestPayload $payload1 */
+    $payload1 = app(TestPayload::class);
+    $payload1->setParameter('test');
 
     /** @var TestMethodWithRequestCache $method */
     $method = app(TestMethodWithRequestCache::class);
@@ -78,6 +93,13 @@ it('calls service only once for given payload when using RequestCache', function
     // no additional ServiceCalled events
     Event::assertDispatchedTimes(ApiCalled::class, 1);
     // one additional ResponseRetrievedFromCache event
+    Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 1);
+
+    $payload1->setUseCache(false);
+    $method->call($payload1);
+    // one additional ServiceCalled event
+    Event::assertDispatchedTimes(ApiCalled::class, 2);
+    // no additional ResponseRetrievedFromCache events
     Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 1);
 });
 
