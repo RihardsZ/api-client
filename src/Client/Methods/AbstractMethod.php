@@ -91,7 +91,9 @@ abstract class AbstractMethod implements Method
 
         $microtimeTo = microtime(true);
 
-        $response = $this->toResponse($rawResponse->json(), $rawResponse->status());
+        $rawDataArray = $this->getRawDataArray($rawResponse);
+
+        $response = $this->toResponse($rawDataArray, $rawResponse->status());
 
         $this->dispatchServiceCalledEvent(
             $payload,
@@ -103,6 +105,7 @@ abstract class AbstractMethod implements Method
 
         return $response;
     }
+
 
     private function dispatchServiceCalledEvent(
         Payload $payload,
@@ -146,5 +149,21 @@ abstract class AbstractMethod implements Method
             ->setTransferStats($rawResponse->transferStats);
 
         return $stats;
+    }
+
+    private function getRawDataArray(RawResponse $rawResponse): array
+    {
+        $rawDataArray = $rawResponse->json();
+
+        if (is_array($rawDataArray)) {
+            return $rawDataArray;
+        }
+
+        return [
+            'status' => [
+                'code' => $rawResponse->status(),
+                'message' => $rawResponse->body()
+            ]
+        ];
     }
 }
