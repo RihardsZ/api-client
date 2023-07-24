@@ -42,15 +42,6 @@ abstract class AbstractMethod implements Method
         return $response;
     }
 
-    private function isUsingCache(Payload $payload): bool
-    {
-        if (!$payload->isCacheRetrievalAllowed()) {
-            return false;
-        }
-
-        return $this->cacheStrategy->getCache()->has($payload->getCacheKey());
-    }
-
     public function getName(): string
     {
         return static::METHOD_NAME;
@@ -61,7 +52,21 @@ abstract class AbstractMethod implements Method
         return $this->service;
     }
 
+    public function removeFromCache(Payload $payload): void
+    {
+        $this->cacheStrategy->getCache()->forget($payload->getCacheKey());
+    }
+
     abstract protected function toResponse(array $rawResponse, int $httpCode): Response;
+
+    private function isUsingCache(Payload $payload): bool
+    {
+        if (!$payload->isCacheRetrievalAllowed()) {
+            return false;
+        }
+
+        return $this->cacheStrategy->getCache()->has($payload->getCacheKey());
+    }
 
     private function retrieveFromCache(Payload $payload): Response
     {
