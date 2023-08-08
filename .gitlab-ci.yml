@@ -2,7 +2,7 @@ variables:
   IMAGE: $CI_REGISTRY_IMAGE
 
 build-base-image:
-  stage: build-base-image
+  stage: build-image
   tags:
     - docker
   before_script:
