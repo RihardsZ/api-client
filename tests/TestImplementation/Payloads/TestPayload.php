@@ -8,6 +8,8 @@ class TestPayload extends AbstractPayload
 {
     private string $parameter;
 
+    private bool $isCacheUsed = true;
+
     public function setParameter(string $parameter): TestPayload
     {
         $this->parameter = $parameter;
@@ -25,5 +27,17 @@ class TestPayload extends AbstractPayload
     public function getCacheKey(): string
     {
         return self::class . $this->parameter;
+    }
+
+    public function isCacheRetrievalAllowed(): bool
+    {
+        return $this->isCacheUsed;
+    }
+
+    public function setUseCache(bool $isCacheUsed = true): TestPayload
+    {
+        $this->isCacheUsed = $isCacheUsed;
+
+        return $this;
     }
 }

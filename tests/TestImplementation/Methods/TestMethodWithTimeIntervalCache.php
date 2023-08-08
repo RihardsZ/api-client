@@ -14,5 +14,6 @@ class TestMethodWithTimeIntervalCache extends TestMethod
         TimeIntervalCacheStrategy $cacheStrategy
     ) {
         parent::__construct($service, $cacheStrategy);
+        $cacheStrategy->setCachingTimeSeconds(1000);
     }
 }

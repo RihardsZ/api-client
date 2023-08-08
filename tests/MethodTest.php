@@ -10,10 +10,6 @@ use CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestResponse;
 
 use Illuminate\Support\Facades\Event;
 
-beforeAll(function () {
-//    Event::fake();
-});
-
 beforeEach(function () {
     Soap::fake(function ($request) {
         return match ($request->offsetGet('parameter')) {
@@ -105,6 +101,3 @@ it('throws exception on accessing entity when having unsuccessful response', fun
 
 })->throws(Error::class, 'Typed property CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestResponse::$entity must not be accessed before initialization');
 
-afterEach(function () {
-//    app()->forgetInstances();
-});

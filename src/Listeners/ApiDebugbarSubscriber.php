@@ -40,7 +40,8 @@ class ApiDebugbarSubscriber
             ->setCached(true)
             ->setMethod($event->getMethod())
             ->setPayload($event->getPayload())
-            ->setResponse($event->getResponse());
+            ->setResponse($event->getResponse())
+            ->setCallStats($event->getCallStats());
 
         Debugbar::getCollector('api')->addEntry($entry);
     }

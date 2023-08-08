@@ -27,10 +27,7 @@ abstract class AbstractService implements Service
         $this->endpoint = $endpoint;
 
         $this->client = Api::baseWsdl($this->getUrl())
-            ->withSoapHeaders($headers)
-            ->withOptions([
-                'trace' => true
-            ]);
+            ->withSoapHeaders($headers);
     }
 
     public function getClient(): ApiClient
