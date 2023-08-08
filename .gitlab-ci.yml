@@ -23,7 +23,6 @@ test:unit:
   stage: test
   image: $IMAGE
   before_script:
-    - mv /usr/local/etc/php/conf.d/disabled/docker-php-ext-pcov.ini /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
     - composer install --no-scripts
   script:
     - ./vendor/bin/pest --coverage --coverage-clover=coverage.xml
