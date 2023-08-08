@@ -1,10 +1,27 @@
+variables:
+  IMAGE: $CI_REGISTRY_IMAGE
+
+build-base-image:
+  stage: build-base-image
+  tags:
+    - docker
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - docker build --build-arg WWWGROUP=1000 -t $IMAGE .
+    - docker push $IMAGE
+  rules:
+    - changes:
+      - Dockerfile
+
 stages:
+  - build-image
   - test
   - analyse
 
 test:unit:
   stage: test
-  image: registry.cubesystems.lv/latvenergo/docker/leonardo/base:8.0-soap-revision
+  image: $IMAGE
   before_script:
     - mv /usr/local/etc/php/conf.d/disabled/docker-php-ext-pcov.ini /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
     - composer install --no-scripts
