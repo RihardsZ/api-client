@@ -4,11 +4,12 @@ stages:
 
 test:unit:
   stage: test
-  image: registry.cubesystems.lv/latvenergo/docker/leonardo/base:8.0-composer-2
+  image: registry.cubesystems.lv/latvenergo/docker/leonardo/base:8.0-soap-revision
   before_script:
-    - composer install --ignore-platform-reqs --no-scripts
+    - mv /usr/local/etc/php/conf.d/disabled/docker-php-ext-pcov.ini /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
+    - composer install --no-scripts
   script:
-    - ./vendor/bin/pest --coverage-clover=coverage.xml
+    - ./vendor/bin/pest --coverage --coverage-clover=coverage.xml
   artifacts:
     when: always
     paths:
