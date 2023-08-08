@@ -28,9 +28,6 @@ sonarqube-check:
     key: "${CI_JOB_NAME}"
     paths:
       - .sonar/cache
-  before_script:
-    - sed -i -e 's?/app?'`pwd`'?' coverage-report.xml
-    - sed -i -e 's?/app?'`pwd`'?' phpunit-report.xml
   script:
     - sonar-scanner
   allow_failure: true
