@@ -1,3 +1,5 @@
+# Docker image used for testing in CI
+
 FROM php:8.0-fpm-alpine
 
 WORKDIR /usr/share/www/app
