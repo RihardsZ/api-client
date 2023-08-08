@@ -6,7 +6,7 @@ test:unit:
   stage: test
   image: registry.cubesystems.lv/latvenergo/docker/leonardo/base:8.0-composer-2
   before_script:
-    - composer install --no-scripts
+    - composer install --ignore-platform-reqs --no-scripts
   script:
     - ./vendor/bin/pest --coverage-clover=coverage.xml
   artifacts:
