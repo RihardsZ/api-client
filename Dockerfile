@@ -17,7 +17,9 @@ RUN apk add --no-cache --virtual .pipeline-deps \
     libzip-dev \
     libpng-dev \
     libxml2-dev \
-    icu-dev
+    icu-dev \
+    autoconf \
+    libxslt-dev
 
 RUN docker-php-ext-install gd soap zip bcmath exif intl opcache xsl
 
