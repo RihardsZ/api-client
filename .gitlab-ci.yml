@@ -1,0 +1,49 @@
+variables:
+  IMAGE: $CI_REGISTRY_IMAGE
+
+build-base-image:
+  stage: build-image
+  tags:
+    - docker
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - docker build --build-arg WWWGROUP=1000 -t $IMAGE .
+    - docker push $IMAGE
+  rules:
+    - changes:
+      - Dockerfile
+
+stages:
+  - build-image
+  - test
+  - analyse
+
+test:unit:
+  stage: test
+  image: $IMAGE
+  before_script:
+    - composer install --no-scripts
+  script:
+    - ./vendor/bin/pest --coverage --coverage-clover=coverage.xml
+  artifacts:
+    when: always
+    paths:
+      - coverage.xml
+    expire_in: 1 day
+
+sonarqube-check:
+  stage: analyse
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script:
+    - sonar-scanner
+  allow_failure: true
