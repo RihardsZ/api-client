@@ -50,7 +50,7 @@
             $('<td />').attr('title', entry.method).text(entry.method).appendTo(tr);
             $('<td />').attr('title', entry.service).text(entry.service).appendTo(tr);
 
-            const executionTime = `${entry.executionTime.toFixed(4)} s`;
+            const executionTime = entry.isCached ? '' : `${entry.executionTime.toFixed(4)} s`;
             $('<td />').attr('title', executionTime).text(executionTime).appendTo(tr);
 
             $('<td />').attr('title', entry.startTime).text(entry.startTime).appendTo(tr);
