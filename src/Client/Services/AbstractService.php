@@ -7,7 +7,6 @@ use CubeSystems\ApiClient\Client\Headers\Header;
 use CubeSystems\ApiClient\Client\ApiClient;
 use CubeSystems\ApiClient\Client\Contracts\Endpoint;
 use CubeSystems\ApiClient\Client\Contracts\Service;
-use CubeSystems\ApiClient\Facades\Api;
 use Illuminate\Support\Collection;
 
 abstract class AbstractService implements Service
@@ -16,17 +15,14 @@ abstract class AbstractService implements Service
 
     protected BaseClient $client;
 
-    private Endpoint $endpoint;
-
-    /** @var Collection<Header> */
-    private Collection $headers;
-
-    public function __construct(Endpoint $endpoint, Collection $headers)
-    {
-        $this->headers = $headers;
-        $this->endpoint = $endpoint;
-
-        $this->client = Api::baseWsdl($this->getUrl())
+    public function __construct(
+        private Endpoint $endpoint,
+        /** @var Collection<Header> */
+        private Collection $headers,
+        ApiClient $client
+    ) {
+        $this->client = $client
+            ->baseWsdl($this->getUrl())
             ->withSoapHeaders($headers);
     }
 
