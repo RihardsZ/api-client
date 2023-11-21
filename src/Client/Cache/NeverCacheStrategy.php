@@ -17,4 +17,9 @@ class NeverCacheStrategy extends AbstractCacheStrategy
     {
         return $callback();
     }
+
+    public function addToHierarchy(string $hierarchicalKey, string $cacheKey): void
+    {
+        // do nothing
+    }
 }

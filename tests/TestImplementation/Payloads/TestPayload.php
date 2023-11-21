@@ -6,9 +6,10 @@ use CubeSystems\ApiClient\Client\Payloads\AbstractPayload;
 
 class TestPayload extends AbstractPayload
 {
-    private string $parameter;
+    private string $parameter = '';
 
     private bool $isCacheUsed = true;
+    private bool $isCacheHierarchyUsed = false;
 
     public function setParameter(string $parameter): TestPayload
     {
@@ -24,9 +25,9 @@ class TestPayload extends AbstractPayload
         ];
     }
 
-    public function getCacheKey(): string
+    protected function getUnprefixedCacheKey(): string
     {
-        return self::class . $this->parameter;
+        return self::class . ':' .$this->parameter;
     }
 
     public function isCacheRetrievalAllowed(): bool
@@ -34,9 +35,21 @@ class TestPayload extends AbstractPayload
         return $this->isCacheUsed;
     }
 
-    public function setUseCache(bool $isCacheUsed = true): TestPayload
+    public function setUseCache(bool $isCacheUsed): TestPayload
     {
         $this->isCacheUsed = $isCacheUsed;
+
+        return $this;
+    }
+
+    public function isUsingCacheHierarchy(): bool
+    {
+        return $this->isCacheHierarchyUsed;
+    }
+
+    public function setUseCacheHierarchy(bool $isCacheHierarchyUsed): TestPayload
+    {
+        $this->isCacheHierarchyUsed = $isCacheHierarchyUsed;
 
         return $this;
     }

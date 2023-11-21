@@ -9,4 +9,8 @@ interface Payload
     public function getCacheKey(): string;
 
     public function isCacheRetrievalAllowed(): bool;
+
+    public function isUsingCacheHierarchy(): bool;
+
+    public function getCacheHierarchyKey(): string;
 }

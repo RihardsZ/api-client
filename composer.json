@@ -29,6 +29,7 @@
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.8",
         "laravel/pint": "^1.0",
+        "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^6",
         "nunomaduro/larastan": "^2.0.1",
         "orchestra/testbench": "^7.0",

@@ -37,6 +37,10 @@ abstract class AbstractMethod implements Method
             $this->cacheStrategy->cache($payload->getCacheKey(), function () use ($response) {
                 return $response;
             });
+
+            if ($payload->isUsingCacheHierarchy()) {
+                $this->cacheStrategy->addToHierarchy($payload->getCacheHierarchyKey(), $payload->getCacheKey());
+            }
         }
 
         return $response;
@@ -55,6 +59,11 @@ abstract class AbstractMethod implements Method
     public function removeFromCache(Payload $payload): void
     {
         $this->cacheStrategy->getCache()->forget($payload->getCacheKey());
+    }
+
+    public function removeHierarchyFromCache(Payload $payload): void
+    {
+        $this->cacheStrategy->forgetHierarchy($payload->getCacheHierarchyKey());
     }
 
     abstract protected function toResponse(array $rawResponse, int $httpCode): Response;
@@ -110,7 +119,6 @@ abstract class AbstractMethod implements Method
 
         return $response;
     }
-
 
     private function dispatchServiceCalledEvent(
         Payload $payload,

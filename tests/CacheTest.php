@@ -41,10 +41,11 @@ beforeEach(function () {
     Event::fake();
 });
 
-it('always calls service when using NeverCache strategy', function () {
+it('always calls service when using NeverCache strategy', function (bool $useHierarchy) {
     /** @var TestPayload $payload */
     $payload = app(TestPayload::class);
     $payload->setParameter('test');
+    $payload->setUseCacheHierarchy($useHierarchy);
 
     /** @var TestMethodWithoutCache $method */
     $method = app(TestMethodWithoutCache::class);
@@ -56,7 +57,10 @@ it('always calls service when using NeverCache strategy', function () {
     $method->call($payload);
     Event::assertDispatchedTimes(ApiCalled::class, 2);
     Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 0);
-});
+})->with([
+    true, // sets hierarchy
+    false, // does not set hierarchy
+]);
 
 it('calls service only once for given payload when using RequestCache', function () {
     /** @var TestPayload $payload1 */
@@ -134,7 +138,7 @@ it('calls service when given different payload when using RequestCache', functio
 });
 
 it('does not call service when using TimeIntervalCache and time\'s not up', function () {
-    /** @var TestPayload $payload1 */
+    /** @var TestPayload $payload */
     $payload = app(TestPayload::class);
     $payload->setParameter('test');
 
@@ -150,8 +154,72 @@ it('does not call service when using TimeIntervalCache and time\'s not up', func
     Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 1);
 });
 
-it('does call service when using TimeIntervalCache and time is up', function () {
+it('calls service when response has been removed from cache', function () {
     /** @var TestPayload $payload1 */
+    $payload1 = app(TestPayload::class);
+    $payload1->setParameter('test1');
+    $payload1->setUseCacheHierarchy(true);
+
+    /** @var TestPayload $payload2 */
+    $payload2 = app(TestPayload::class);
+    $payload2->setParameter('test2');
+    $payload2->setUseCacheHierarchy(true);
+
+    /** @var TestMethodWithTimeIntervalCache $method */
+    $method = app(TestMethodWithTimeIntervalCache::class);
+    $method->call($payload1);
+    $method->call($payload2);
+
+    Event::assertDispatchedTimes(ApiCalled::class, 2);
+    Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 0);
+
+    $method->call($payload1);
+    $method->call($payload2);
+    Event::assertDispatchedTimes(ApiCalled::class, 2);
+    Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 2);
+
+    $method->removeFromCache($payload1);
+
+    $method->call($payload1);
+    $method->call($payload2);
+    Event::assertDispatchedTimes(ApiCalled::class, 3);
+    Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 3);
+});
+
+it('calls service when hierarchy has been forgotten', function () {
+    /** @var TestPayload $payload1 */
+    $payload1 = app(TestPayload::class);
+    $payload1->setParameter('test1');
+    $payload1->setUseCacheHierarchy(true);
+
+    /** @var TestPayload $payload2 */
+    $payload2 = app(TestPayload::class);
+    $payload2->setParameter('test2');
+    $payload2->setUseCacheHierarchy(true);
+
+    /** @var TestMethodWithTimeIntervalCache $method */
+    $method = app(TestMethodWithTimeIntervalCache::class);
+    $method->call($payload1);
+    $method->call($payload2);
+
+    Event::assertDispatchedTimes(ApiCalled::class, 2);
+    Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 0);
+
+    $method->call($payload1);
+    $method->call($payload2);
+    Event::assertDispatchedTimes(ApiCalled::class, 2);
+    Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 2);
+
+    $method->removeHierarchyFromCache($payload1);
+
+    $method->call($payload1);
+    $method->call($payload2);
+    Event::assertDispatchedTimes(ApiCalled::class, 4);
+    Event::assertDispatchedTimes(ResponseRetrievedFromCache::class, 2);
+});
+
+it('does call service when using TimeIntervalCache and time is up', function () {
+    /** @var TestPayload $payload */
     $payload = app(TestPayload::class);
     $payload->setParameter('test');
 
@@ -171,7 +239,7 @@ it('does call service when using TimeIntervalCache and time is up', function () 
 });
 
 it('does cache for error responses', function () {
-    /** @var TestPayload $payload1 */
+    /** @var TestPayload $payload */
     $payload = app(TestPayload::class);
     $payload->setParameter('error');
 
@@ -185,7 +253,7 @@ it('does cache for error responses', function () {
 });
 
 it('does not cache anything for technical error responses', function () {
-    /** @var TestPayload $payload1 */
+    /** @var TestPayload $payload */
     $payload = app(TestPayload::class);
     $payload->setParameter('technical error');
 

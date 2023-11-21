@@ -1,5 +1,6 @@
 <?php
 
+use CubeSystems\ApiClient\Client\Contracts\Response;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
 use CubeSystems\ApiClient\Debugbar\DebugbarEntry;
 use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestEndpoint;
@@ -70,6 +71,7 @@ it('has correct toArray output when not cached', function () {
     $entry
         ->setMethod($method)
         ->setPayload($payload)
+        ->setResponse(Mockery::mock(Response::class))
         ->setCallStats($callStats);
 
     expect($entry->toArray())->toBe([
