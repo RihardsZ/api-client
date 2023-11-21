@@ -3,6 +3,7 @@
 namespace CubeSystems\ApiClient\Tests\TestImplementation\Methods;
 
 use CubeSystems\ApiClient\Client\Cache\TimeIntervalCacheStrategy;
+use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlugManager;
 use CubeSystems\ApiClient\Tests\TestImplementation\Services\TestService;
 
 class TestMethodWithTimeIntervalCache extends TestMethod
@@ -11,9 +12,10 @@ class TestMethodWithTimeIntervalCache extends TestMethod
 
     public function __construct(
         TestService $service,
-        TimeIntervalCacheStrategy $cacheStrategy
+        TimeIntervalCacheStrategy $cacheStrategy,
+        TestPlugManager $plugManager
     ) {
-        parent::__construct($service, $cacheStrategy);
+        parent::__construct($service, $cacheStrategy, $plugManager);
         $cacheStrategy->setCachingTimeSeconds(1000);
     }
 }

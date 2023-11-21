@@ -127,6 +127,7 @@ class MyResponse extends AbstractResponse
 
 ```php
 use CubeSystems\ApiClient\Client\Methods\AbstractMethod;
+use CubeSystems\ApiClient\Client\Plugs\PlugManager;
 use CubeSystems\ApiClient\Client\Strategies\NeverCacheStrategy;
 use Illuminate\Support\Arr;
 
@@ -136,9 +137,10 @@ class MyMethod extends AbstractMethod
 
     public function __construct(
         MyService $service,
-        NeverCacheStrategy $cacheStrategy
+        NeverCacheStrategy $cacheStrategy,
+        PlugManager $plugManager
     ) {
-        parent::__construct($service, $cacheStrategy);
+        parent::__construct($service, $cacheStrategy, $plugManager);
     }
     
     protected function toResponse(array $rawResponse, int $httpCode): MyResponse
