@@ -230,6 +230,14 @@ You can also create your own strategy by implementing `CubeSystems\ApiClient\Cli
 
 `CubeSystems\ApiClient\Client\Contracts\Payload::getCacheKey()` method is used to decide if there are valid cache entries for a given payload. If there are, the response is retrieved from cache. Otherwise, the remote API is called.
 
+### Hierarchical caching
+
+If payload returns `true` from `isUsingCacheHierarchy` method, then corresponding call will be made part of the cache hierarchy. This allows to invalidate all cache entries for given hierarchy at once by calling `AbstractMethod`'s `removeHierarchyFromCache` method.
+
+For this to work, `CubeSystems\ApiClient\Client\Contracts\Payload::getCacheHierarchyKey` method must be implemented according to your needs.
+
+Moreover, `AbstractPayload` now accepts optional `CachePrefix` parameter which can be used to differentiate between cache hierarchies for the same _type_ of method and payload. Typical use case would be to distinguish between different users' cache hierarchies.
+
 ## There is more
 
 ### Events
