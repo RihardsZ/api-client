@@ -9,24 +9,26 @@ use CubeSystems\ApiClient\Client\Contracts\Method;
 use CubeSystems\ApiClient\Client\Contracts\Payload;
 use CubeSystems\ApiClient\Client\Contracts\Response;
 use CubeSystems\ApiClient\Client\Contracts\Service;
+use CubeSystems\ApiClient\Client\Plugs\PlugManager;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
 use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
 use CubeSystems\ApiClient\Events\ApiCalled;
 
 abstract class AbstractMethod implements Method
 {
-    private Service $service;
-
-    private CacheStrategy $cacheStrategy;
-
-    public function __construct(Service $service, CacheStrategy $cacheStrategy)
-    {
-        $this->service = $service;
-        $this->cacheStrategy = $cacheStrategy;
+    public function __construct(
+        private Service $service,
+        private CacheStrategy $cacheStrategy,
+        private PlugManager $plugManager,
+    ) {
     }
 
     public function call(Payload $payload): Response
     {
+        if ($plug = $this->plugManager->findPlugForMethod($this->getName(), $payload)) {
+            return $plug->getResponse();
+        }
+
         if ($this->isUsingCache($payload)) {
             return $this->retrieveFromCache($payload);
         }
