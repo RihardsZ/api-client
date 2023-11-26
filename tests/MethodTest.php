@@ -111,7 +111,7 @@ it('retrieves response from plug if one exists, proceeds to call method otherwis
     $methodWithoutPlug = app(TestMethodWithoutCache::class);
 
     expect($methodWithPlug->call($payload)->getRawData())->toHaveKey('owo');
-    expect($methodWithoutPlug->call($payload)->getRawData())->toBeArray();
+    expect($methodWithoutPlug->call($payload)->getRawData())->not()->toHaveKey('owo');
 });
 
 it('throws exception on accessing entity when having unsuccessful response', function () {
