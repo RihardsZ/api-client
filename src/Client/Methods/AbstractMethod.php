@@ -13,6 +13,7 @@ use CubeSystems\ApiClient\Client\Plugs\PlugManager;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
 use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
 use CubeSystems\ApiClient\Events\ApiCalled;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 abstract class AbstractMethod implements Method
 {
@@ -26,7 +27,10 @@ abstract class AbstractMethod implements Method
     public function call(Payload $payload): Response
     {
         if ($plug = $this->plugManager->findPlugForMethod($this->getName(), $payload)) {
-            return $plug->getResponse();
+            return $this->toResponse(
+                $plug->getResponse()->getRawData(),
+                SymfonyResponse::HTTP_OK
+            );
         }
 
         if ($this->isUsingCache($payload)) {

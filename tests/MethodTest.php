@@ -94,7 +94,11 @@ it('retrieves response from plug if one exists, proceeds to call method otherwis
     /** @var TestPlugManager $plugManager */
     $plugManager = app(TestPlugManager::class, [
         'plugs' => [
-            'TestMethodWithPlug' => new TestPlug(new TestPlugResponse()),
+            'TestMethodWithPlug' => new TestPlug((new TestPlugResponse())->setRawData([
+                'owo' => 'uwu',
+                'status' => 'S',
+                'name' => 'Test',
+            ])),
         ],
     ]);
 
@@ -106,8 +110,8 @@ it('retrieves response from plug if one exists, proceeds to call method otherwis
     /** @var TestMethodWithoutCache $methodWithoutPlug */
     $methodWithoutPlug = app(TestMethodWithoutCache::class);
 
-    expect($methodWithPlug->call($payload))->toBeInstanceOf(TestPlugResponse::class);
-    expect($methodWithoutPlug->call($payload))->toBeInstanceOf(TestResponse::class);
+    expect($methodWithPlug->call($payload)->getRawData())->toHaveKey('owo');
+    expect($methodWithoutPlug->call($payload)->getRawData())->toBeArray();
 });
 
 it('throws exception on accessing entity when having unsuccessful response', function () {
