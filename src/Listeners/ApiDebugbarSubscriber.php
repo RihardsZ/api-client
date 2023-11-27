@@ -6,6 +6,7 @@ use Barryvdh\Debugbar\Facades\Debugbar;
 use CubeSystems\ApiClient\Debugbar\DebugbarEntry;
 use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
 use CubeSystems\ApiClient\Events\ApiCalled;
+use CubeSystems\ApiClient\Events\ResponseRetrievedFromPlug;
 use Illuminate\Events\Dispatcher;
 
 class ApiDebugbarSubscriber
@@ -14,7 +15,8 @@ class ApiDebugbarSubscriber
     {
         return [
             ApiCalled::class => 'handleServiceCall',
-            ResponseRetrievedFromCache::class => 'handleRetrievalFromCache'
+            ResponseRetrievedFromCache::class => 'handleRetrievalFromCache',
+            ResponseRetrievedFromPlug::class => 'handleRetrievalFromPlug',
         ];
     }
 
@@ -38,6 +40,20 @@ class ApiDebugbarSubscriber
 
         $entry
             ->setCached(true)
+            ->setMethod($event->getMethod())
+            ->setPayload($event->getPayload())
+            ->setResponse($event->getResponse())
+            ->setCallStats($event->getCallStats());
+
+        Debugbar::getCollector('api')->addEntry($entry);
+    }
+
+    public function handleRetrievalFromPlug(ResponseRetrievedFromPlug $event): void
+    {
+        $entry = new DebugbarEntry();
+
+        $entry
+            ->setPlug()
             ->setMethod($event->getMethod())
             ->setPayload($event->getPayload())
             ->setResponse($event->getResponse())

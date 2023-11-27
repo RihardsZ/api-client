@@ -20,6 +20,8 @@ class DebugbarEntry
 
     private bool $isCached = false;
 
+    private bool $isPlug = false;
+
     public function setMethod(Method $method): DebugbarEntry
     {
         $this->method = $method;
@@ -58,6 +60,18 @@ class DebugbarEntry
     public function isCached(): bool
     {
         return $this->isCached;
+    }
+
+    public function setPlug(bool $isPlug = true): DebugbarEntry
+    {
+        $this->isPlug = $isPlug;
+
+        return $this;
+    }
+
+    public function isPlug(): bool
+    {
+        return $this->isPlug;
     }
 
     public function toArray(): array
