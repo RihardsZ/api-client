@@ -15,4 +15,9 @@ class TestPlug implements PlugResponseInterface
     {
         return $this->response;
     }
+
+    public function getStatusCode(): int
+    {
+        return 200;
+    }
 }

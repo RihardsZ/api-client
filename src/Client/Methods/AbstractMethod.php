@@ -10,10 +10,11 @@ use CubeSystems\ApiClient\Client\Contracts\Payload;
 use CubeSystems\ApiClient\Client\Contracts\Response;
 use CubeSystems\ApiClient\Client\Contracts\Service;
 use CubeSystems\ApiClient\Client\Plugs\PlugManager;
+use CubeSystems\ApiClient\Client\Plugs\PlugResponseInterface;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
 use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
 use CubeSystems\ApiClient\Events\ApiCalled;
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use CubeSystems\ApiClient\Events\ResponseRetrievedFromPlug;
 
 abstract class AbstractMethod implements Method
 {
@@ -27,10 +28,7 @@ abstract class AbstractMethod implements Method
     public function call(Payload $payload): Response
     {
         if ($plug = $this->plugManager->findPlugForMethod($this->getName(), $payload)) {
-            return $this->toResponse(
-                $plug->getResponse()->getRawData(),
-                SymfonyResponse::HTTP_OK
-            );
+            return $this->retrieveFromPlug($payload, $plug);
         }
 
         if ($this->isUsingCache($payload)) {
@@ -81,6 +79,24 @@ abstract class AbstractMethod implements Method
         }
 
         return $this->cacheStrategy->getCache()->has($payload->getCacheKey());
+    }
+
+    private function retrieveFromPlug(Payload $payload, PlugResponseInterface $plugResponse): Response
+    {
+        $stats = new CallStats();
+        $stats->setMicrotimeStart(microtime(true));
+
+        ResponseRetrievedFromPlug::dispatch(
+            $this,
+            $payload,
+            $plugResponse,
+            $stats
+        );
+
+        return $this->toResponse(
+            $plugResponse->getResponse()->getRawData(),
+            $plugResponse->getStatusCode()
+        );
     }
 
     private function retrieveFromCache(Payload $payload): Response

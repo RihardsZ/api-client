@@ -7,4 +7,6 @@ use CubeSystems\ApiClient\Client\Contracts\Response;
 interface PlugResponseInterface
 {
     public function getResponse(): Response;
+
+    public function getStatusCode(): int;
 }
