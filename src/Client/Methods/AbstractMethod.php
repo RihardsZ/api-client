@@ -81,7 +81,7 @@ abstract class AbstractMethod implements Method
         return $this->cacheStrategy->getCache()->has($payload->getCacheKey());
     }
 
-    private function retrieveFromPlug(Payload $payload, PlugResponseInterface $plugResponse): Response
+    private function retrieveFromPlug(Payload $payload, PlugResponseInterface $plug): Response
     {
         $stats = new CallStats();
         $stats->setMicrotimeStart(microtime(true));
@@ -89,13 +89,13 @@ abstract class AbstractMethod implements Method
         ResponseRetrievedFromPlug::dispatch(
             $this,
             $payload,
-            $plugResponse,
+            $plug->getResponse(),
             $stats
         );
 
         return $this->toResponse(
-            $plugResponse->getResponse()->getRawData(),
-            $plugResponse->getStatusCode()
+            $plug->getResponse()->getRawData(),
+            $plug->getStatusCode()
         );
     }
 
