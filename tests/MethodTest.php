@@ -8,7 +8,6 @@ use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithRequest
 use CubeSystems\ApiClient\Tests\TestImplementation\Payloads\TestPayload;
 use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlug;
 use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlugManager;
-use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlugResponse;
 use CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestEntity;
 use CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestResponse;
 
@@ -94,11 +93,11 @@ it('retrieves response from plug if one exists, proceeds to call method otherwis
     /** @var TestPlugManager $plugManager */
     $plugManager = app(TestPlugManager::class, [
         'plugs' => [
-            'TestMethodWithPlug' => new TestPlug((new TestPlugResponse())->setRawData([
+            'TestMethodWithPlug' => new TestPlug([
                 'owo' => 'uwu',
                 'status' => 'S',
                 'name' => 'Test',
-            ])),
+            ]),
         ],
     ]);
 

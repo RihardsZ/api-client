@@ -3,8 +3,8 @@
 namespace CubeSystems\ApiClient\Tests\TestImplementation\Plugs;
 
 use CubeSystems\ApiClient\Client\Contracts\Payload;
+use CubeSystems\ApiClient\Client\Contracts\Plug;
 use CubeSystems\ApiClient\Client\Plugs\PlugManager;
-use CubeSystems\ApiClient\Client\Plugs\PlugResponseInterface;
 use Illuminate\Support\Arr;
 
 class TestPlugManager extends PlugManager
@@ -13,7 +13,7 @@ class TestPlugManager extends PlugManager
     {
     }
 
-    public function findPlugForMethod(string $methodName, Payload $payload): ?PlugResponseInterface
+    public function findPlugForMethod(string $methodName, Payload $payload): ?Plug
     {
         return Arr::get($this->plugs, $methodName);
     }

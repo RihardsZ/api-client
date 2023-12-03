@@ -8,7 +8,7 @@ use CubeSystems\ApiClient\Client\Contracts\Response;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
 use Illuminate\Foundation\Events\Dispatchable;
 
-class ApiDebugEvent
+class ApiEvent
 {
     use Dispatchable;
 

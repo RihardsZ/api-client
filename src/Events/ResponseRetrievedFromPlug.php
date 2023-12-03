@@ -2,6 +2,6 @@
 
 namespace CubeSystems\ApiClient\Events;
 
-class ResponseRetrievedFromPlug extends ApiDebugEvent
+class ResponseRetrievedFromPlug extends ApiEvent
 {
 }

@@ -3,17 +3,16 @@
 namespace CubeSystems\ApiClient\Client\Methods;
 
 use CodeDredd\Soap\Client\Response as RawResponse;
-
 use CubeSystems\ApiClient\Client\Contracts\CacheStrategy;
 use CubeSystems\ApiClient\Client\Contracts\Method;
 use CubeSystems\ApiClient\Client\Contracts\Payload;
+use CubeSystems\ApiClient\Client\Contracts\Plug;
 use CubeSystems\ApiClient\Client\Contracts\Response;
 use CubeSystems\ApiClient\Client\Contracts\Service;
 use CubeSystems\ApiClient\Client\Plugs\PlugManager;
-use CubeSystems\ApiClient\Client\Plugs\PlugResponseInterface;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
-use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
 use CubeSystems\ApiClient\Events\ApiCalled;
+use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
 use CubeSystems\ApiClient\Events\ResponseRetrievedFromPlug;
 
 abstract class AbstractMethod implements Method
@@ -81,22 +80,24 @@ abstract class AbstractMethod implements Method
         return $this->cacheStrategy->getCache()->has($payload->getCacheKey());
     }
 
-    private function retrieveFromPlug(Payload $payload, PlugResponseInterface $plug): Response
+    private function retrieveFromPlug(Payload $payload, Plug $plug): Response
     {
         $stats = new CallStats();
         $stats->setMicrotimeStart(microtime(true));
 
+        $response = $this->toResponse(
+            $plug->getResponse(),
+            $plug->getStatusCode()
+        );
+
         ResponseRetrievedFromPlug::dispatch(
             $this,
             $payload,
-            $plug->getResponse(),
+            $response,
             $stats
         );
 
-        return $this->toResponse(
-            $plug->getResponse()->getRawData(),
-            $plug->getStatusCode()
-        );
+        return $response;
     }
 
     private function retrieveFromCache(Payload $payload): Response

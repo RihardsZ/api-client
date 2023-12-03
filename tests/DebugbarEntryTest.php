@@ -5,6 +5,7 @@ use CubeSystems\ApiClient\Client\Stats\CallStats;
 use CubeSystems\ApiClient\Debugbar\DebugbarEntry;
 use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestEndpoint;
 use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithoutCache;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithPlug;
 use CubeSystems\ApiClient\Tests\TestImplementation\Payloads\TestPayload;
 use CubeSystems\ApiClient\Tests\TestImplementation\Services\TestService;
 
@@ -45,9 +46,41 @@ it('has correct toArray output when cached', function () {
 
     expect($entry->toArray())->toBe([
         'isCached' => true,
+        'isFromPlug' => false,
         'method' => 'TestMethodWithoutCache',
         'service' => TestService::class,
         'request' => '',
+        'executionTime' => '',
+        'startTime' => '2023-05-17 06:47:31'
+    ]);
+});
+
+it('has correct toArray output when is from plug', function () {
+    date_default_timezone_set('Europe/Riga');
+
+    $entry = new DebugbarEntry();
+
+    $method = app(TestMethodWithPlug::class);
+
+    $payload = app(TestPayload::class);
+    $payload->setParameter('payload data');
+
+    $callStats = new CallStats();
+    $callStats->setRequestString('request string');
+    $callStats->setMicrotimeStart(1684295251);
+
+    $entry
+        ->setMethod($method)
+        ->setPayload($payload)
+        ->setCallStats($callStats)
+        ->setFromPlug();
+
+    expect($entry->toArray())->toBe([
+        'isCached' => false,
+        'isFromPlug' => true,
+        'method' => 'TestMethodWithPlug',
+        'service' => TestService::class,
+        'request' => 'request string',
         'executionTime' => '',
         'startTime' => '2023-05-17 06:47:31'
     ]);
@@ -76,6 +109,7 @@ it('has correct toArray output when not cached', function () {
 
     expect($entry->toArray())->toBe([
         'isCached' => false,
+        'isFromPlug' => false,
         'method' => 'TestMethodWithoutCache',
         'service' => TestService::class,
         'request' => 'request string',

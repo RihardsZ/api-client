@@ -20,7 +20,7 @@ class DebugbarEntry
 
     private bool $isCached = false;
 
-    private bool $isPlug = false;
+    private bool $isFromPlug = false;
 
     public function setMethod(Method $method): DebugbarEntry
     {
@@ -62,16 +62,16 @@ class DebugbarEntry
         return $this->isCached;
     }
 
-    public function setPlug(bool $isPlug = true): DebugbarEntry
+    public function setFromPlug(bool $isFromPlug = true): DebugbarEntry
     {
-        $this->isPlug = $isPlug;
+        $this->isFromPlug = $isFromPlug;
 
         return $this;
     }
 
-    public function isPlug(): bool
+    public function isFromPlug(): bool
     {
-        return $this->isPlug;
+        return $this->isFromPlug;
     }
 
     public function toArray(): array
@@ -80,10 +80,11 @@ class DebugbarEntry
 
         return [
             'isCached' => $this->isCached,
+            'isFromPlug' => $this->isFromPlug,
             'method' => $this->method->getName(),
             'service' => get_class($this->method->getService()),
             'request' => $this->isCached ? '' : $this->callStats->getRequestString(),
-            'executionTime' => $this->isCached ? '' : $this->callStats->getMicrotimeDifference(),
+            'executionTime' => $this->isCached || $this->isFromPlug ? '' : $this->callStats->getMicrotimeDifference(),
             'startTime' => $startTime
         ];
     }

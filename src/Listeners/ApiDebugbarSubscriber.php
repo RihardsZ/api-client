@@ -53,7 +53,7 @@ class ApiDebugbarSubscriber
         $entry = new DebugbarEntry();
 
         $entry
-            ->setPlug()
+            ->setFromPlug()
             ->setMethod($event->getMethod())
             ->setPayload($event->getPayload())
             ->setResponse($event->getResponse())
