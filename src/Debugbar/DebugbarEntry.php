@@ -20,6 +20,8 @@ class DebugbarEntry
 
     private bool $isCached = false;
 
+    private bool $isFromPlug = false;
+
     public function setMethod(Method $method): DebugbarEntry
     {
         $this->method = $method;
@@ -60,16 +62,29 @@ class DebugbarEntry
         return $this->isCached;
     }
 
+    public function setFromPlug(bool $isFromPlug = true): DebugbarEntry
+    {
+        $this->isFromPlug = $isFromPlug;
+
+        return $this;
+    }
+
+    public function isFromPlug(): bool
+    {
+        return $this->isFromPlug;
+    }
+
     public function toArray(): array
     {
         $startTime = Carbon::createFromTimestamp($this->callStats->getMicrotimeStart())->toDateTimeString();
 
         return [
             'isCached' => $this->isCached,
+            'isFromPlug' => $this->isFromPlug,
             'method' => $this->method->getName(),
             'service' => get_class($this->method->getService()),
             'request' => $this->isCached ? '' : $this->callStats->getRequestString(),
-            'executionTime' => $this->isCached ? '' : $this->callStats->getMicrotimeDifference(),
+            'executionTime' => $this->isCached || $this->isFromPlug ? '' : $this->callStats->getMicrotimeDifference(),
             'startTime' => $startTime
         ];
     }

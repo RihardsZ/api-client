@@ -3,8 +3,11 @@
 use CodeDredd\Soap\Facades\Soap;
 use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestEndpoint;
 use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithoutCache;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithPlug;
 use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithRequestCache;
 use CubeSystems\ApiClient\Tests\TestImplementation\Payloads\TestPayload;
+use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlug;
+use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlugManager;
 use CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestEntity;
 use CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestResponse;
 
@@ -81,6 +84,33 @@ it('makes meaningful response when retrieving successful response from cache', f
             ->toBeInstanceOf(TestEntity::class)
             ->getName()->toBe('Test tester')
             ->getAge()->toBe(21);
+});
+
+it('retrieves response from plug if one exists, proceeds to call method otherwise', function () {
+    /** @var TestPayload $payload */
+    $payload = app(TestPayload::class);
+
+    /** @var TestPlugManager $plugManager */
+    $plugManager = app(TestPlugManager::class, [
+        'plugs' => [
+            'TestMethodWithPlug' => new TestPlug([
+                'owo' => 'uwu',
+                'status' => 'S',
+                'name' => 'Test',
+            ]),
+        ],
+    ]);
+
+    /** @var TestMethodWithPlug $methodWithPlug */
+    $methodWithPlug = app(TestMethodWithPlug::class, [
+        'plugManager' => $plugManager,
+    ]);
+
+    /** @var TestMethodWithoutCache $methodWithoutPlug */
+    $methodWithoutPlug = app(TestMethodWithoutCache::class);
+
+    expect($methodWithPlug->call($payload)->getRawData())->toHaveKey('owo');
+    expect($methodWithoutPlug->call($payload)->getRawData())->not()->toHaveKey('owo');
 });
 
 it('throws exception on accessing entity when having unsuccessful response', function () {

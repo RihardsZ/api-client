@@ -3,30 +3,33 @@
 namespace CubeSystems\ApiClient\Client\Methods;
 
 use CodeDredd\Soap\Client\Response as RawResponse;
-
 use CubeSystems\ApiClient\Client\Contracts\CacheStrategy;
 use CubeSystems\ApiClient\Client\Contracts\Method;
 use CubeSystems\ApiClient\Client\Contracts\Payload;
+use CubeSystems\ApiClient\Client\Contracts\Plug;
 use CubeSystems\ApiClient\Client\Contracts\Response;
 use CubeSystems\ApiClient\Client\Contracts\Service;
+use CubeSystems\ApiClient\Client\Plugs\PlugManager;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
-use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
 use CubeSystems\ApiClient\Events\ApiCalled;
+use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
+use CubeSystems\ApiClient\Events\ResponseRetrievedFromPlug;
 
 abstract class AbstractMethod implements Method
 {
-    private Service $service;
-
-    private CacheStrategy $cacheStrategy;
-
-    public function __construct(Service $service, CacheStrategy $cacheStrategy)
-    {
-        $this->service = $service;
-        $this->cacheStrategy = $cacheStrategy;
+    public function __construct(
+        private Service $service,
+        private CacheStrategy $cacheStrategy,
+        private PlugManager $plugManager,
+    ) {
     }
 
     public function call(Payload $payload): Response
     {
+        if ($plug = $this->plugManager->findPlugForMethod($this->getName(), $payload)) {
+            return $this->retrieveFromPlug($payload, $plug);
+        }
+
         if ($this->isUsingCache($payload)) {
             return $this->retrieveFromCache($payload);
         }
@@ -75,6 +78,26 @@ abstract class AbstractMethod implements Method
         }
 
         return $this->cacheStrategy->getCache()->has($payload->getCacheKey());
+    }
+
+    private function retrieveFromPlug(Payload $payload, Plug $plug): Response
+    {
+        $stats = new CallStats();
+        $stats->setMicrotimeStart(microtime(true));
+
+        $response = $this->toResponse(
+            $plug->getResponse(),
+            $plug->getStatusCode()
+        );
+
+        ResponseRetrievedFromPlug::dispatch(
+            $this,
+            $payload,
+            $response,
+            $stats
+        );
+
+        return $response;
     }
 
     private function retrieveFromCache(Payload $payload): Response

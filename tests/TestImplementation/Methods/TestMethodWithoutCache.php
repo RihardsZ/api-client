@@ -3,6 +3,7 @@
 namespace CubeSystems\ApiClient\Tests\TestImplementation\Methods;
 
 use CubeSystems\ApiClient\Client\Cache\NeverCacheStrategy;
+use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlugManager;
 use CubeSystems\ApiClient\Tests\TestImplementation\Services\TestService;
 
 class TestMethodWithoutCache extends TestMethod
@@ -11,8 +12,9 @@ class TestMethodWithoutCache extends TestMethod
 
     public function __construct(
         TestService $service,
-        NeverCacheStrategy $cacheStrategy
+        NeverCacheStrategy $cacheStrategy,
+        TestPlugManager $plugManager
     ) {
-        parent::__construct($service, $cacheStrategy);
+        parent::__construct($service, $cacheStrategy, $plugManager);
     }
 }
