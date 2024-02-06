@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 use CubeSystems\ApiClient\Client\Contracts\Response;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
 use CubeSystems\ApiClient\Debugbar\DebugbarEntry;
-use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestEndpoint;
-use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithoutCache;
-use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithPlug;
+use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestSoapEndpoint;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap\TestMethodWithoutCache;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap\TestMethodWithPlug;
 use CubeSystems\ApiClient\Tests\TestImplementation\Payloads\TestPayload;
-use CubeSystems\ApiClient\Tests\TestImplementation\Services\TestService;
+use CubeSystems\ApiClient\Tests\TestImplementation\Services\TestSoapService;
 
 beforeEach(function () {
-    app()->singleton(TestEndpoint::class, function () {
-        return new TestEndpoint('https://www.w3schools.com');
+    app()->singleton(TestSoapEndpoint::class, function () {
+        return new TestSoapEndpoint('https://www.w3schools.com');
     });
 });
 
@@ -23,6 +25,16 @@ it('says it\'s cached when it has been set cached', function () {
 
     $entry->setCached(false);
     expect($entry->isCached())->toBeFalse();
+});
+
+it('says it\'s from plug when it has been set from plug', function () {
+    $entry = new DebugbarEntry();
+
+    $entry->setFromPlug();
+    expect($entry->isFromPlug())->toBeTrue();
+
+    $entry->setFromPlug(false);
+    expect($entry->isFromPlug())->toBeFalse();
 });
 
 it('has correct toArray output when cached', function () {
@@ -48,7 +60,7 @@ it('has correct toArray output when cached', function () {
         'isCached' => true,
         'isFromPlug' => false,
         'method' => 'TestMethodWithoutCache',
-        'service' => TestService::class,
+        'service' => TestSoapService::class,
         'request' => '',
         'executionTime' => '',
         'startTime' => '2023-05-17 06:47:31'
@@ -79,7 +91,7 @@ it('has correct toArray output when is from plug', function () {
         'isCached' => false,
         'isFromPlug' => true,
         'method' => 'TestMethodWithPlug',
-        'service' => TestService::class,
+        'service' => TestSoapService::class,
         'request' => 'request string',
         'executionTime' => '',
         'startTime' => '2023-05-17 06:47:31'
@@ -111,7 +123,7 @@ it('has correct toArray output when not cached', function () {
         'isCached' => false,
         'isFromPlug' => false,
         'method' => 'TestMethodWithoutCache',
-        'service' => TestService::class,
+        'service' => TestSoapService::class,
         'request' => 'request string',
         'executionTime' => 0.25,
         'startTime' => '2023-05-17 06:47:31'

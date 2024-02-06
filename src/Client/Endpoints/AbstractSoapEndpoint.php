@@ -1,26 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CubeSystems\ApiClient\Client\Endpoints;
 
 use CubeSystems\ApiClient\Client\Contracts\Endpoint;
 
-abstract class AbstractEndpoint implements Endpoint
+abstract class AbstractSoapEndpoint implements Endpoint
 {
-    protected string $url;
-
     private const WSDL_URL_PATTERN = "%s/%s?wsdl";
 
-
-    public function __construct(string $url)
-    {
-        $this->url = $url;
+    public function __construct(
+        protected string $baseUrl,
+    ) {
     }
 
-    public function getWsdlUrl(string $path): string
+    public function getAbsoluteUrl(string $path): string
     {
         return sprintf(
             self::WSDL_URL_PATTERN,
-            $this->url,
+            $this->baseUrl,
             $path
         );
     }

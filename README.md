@@ -1,6 +1,6 @@
 # API Client
 
-This package defines contracts and provides abstract partial implementations of those contracts. It is meant to be used as a base for your own highly modular and customisable implementation of API consumption.
+This package defines contracts and provides abstract partial implementations of those contracts. It is meant to be used as a base building block for your own highly modular and customisable implementation of API consumption. Feel free to use as little or as much of it as you need.
 
 ## Installation
 
@@ -24,44 +24,41 @@ return [
 ];
 ```
 
-## Making custom API client implementation
+## Creating custom API client implementation
 
-First of all, let's define some vocabulary:
+First of all, let's define some vocabulary.
 
-![Method vs service vs endpoint](images/vocab.png) *Methods, services and endpoints*
+### SOAP
+![Method vs service vs endpoint](images/soap.png) *Methods, services and endpoints*
+
+### REST
+
+![Method vs service vs endpoint](images/rest.png) *Methods, services and endpoints*
 
 After this, we can look at the relations between all interfaces:
 
-![Interfaces](images/classes.png) *Relationship between interfaces*
+![Interfaces](images/er.png) *Relationship between main interfaces*
 
 ### Define an endpoint
 
-For this, we need to implement `CubeSystems\ApiClient\Client\Contracts\Endpoint` contract which can be done by extending `CubeSystems\ApiClient\Client\AbstractEndpoint` class:
+For this, we need to implement `CubeSystems\ApiClient\Client\Contracts\Endpoint` contract which can be done by extending `CubeSystems\ApiClient\Client\AbstractRestEndpoint` or `CubeSystems\ApiClient\Client\AbstractSoapEndpoint` class:
 
 ```php
-use CubeSystems\ApiClient\Client\AbstractEndpoint;
+use CubeSystems\ApiClient\Client\AbstractSoapEndpoint;
 
-class MyEndpoint extends AbstractEndpoint {}
+class MyEndpoint extends AbstractSoapEndpoint {}
 ```
 
 ### Define a service accessible within an endpoint
 
-For this, we need to implement `CubeSystems\ApiClient\Client\Contracts\Service` contract which can be done by extending `CubeSystems\ApiClient\Client\AbstractService` class:
+For this, we need to implement `CubeSystems\ApiClient\Client\Contracts\Service` contract which can be done by extending `CubeSystems\ApiClient\Client\AbstractRestService` or `CubeSystems\ApiClient\Client\AbstractSoapService` class:
 
 ```php
-use CubeSystems\ApiClient\Client\AbstractService;
-use Illuminate\Support\Collection;
+use CubeSystems\ApiClient\Client\AbstractSoapService;
 
-class MyService extends AbstractService
+class MyService extends AbstractSoapService
 {
     protected const SERVICE_PATH = 'path/to/service';
-
-    public function __construct(
-        MyEndpoint $endpoint,
-        Collection $headers
-    ) {
-        parent::__construct($endpoint, $headers);
-    }
 }
 ```
 
@@ -123,22 +120,22 @@ class MyResponse extends AbstractResponse
 
 ### Create a method for a service
 
-`CubeSystems\ApiClient\Client\Contracts\Method` is implemented by `CubeSystems\ApiClient\Client\Methods\AbstractMethod` class.
+`CubeSystems\ApiClient\Client\Contracts\Method` is implemented by `CubeSystems\ApiClient\Client\Methods\AbstractRestMethod` and `CubeSystems\ApiClient\Client\Methods\AbstractSoapMethod` classes.
 
 ```php
-use CubeSystems\ApiClient\Client\Methods\AbstractMethod;
+use CubeSystems\ApiClient\Client\Methods\AbstractSoapMethod;
 use CubeSystems\ApiClient\Client\Plugs\PlugManager;
 use CubeSystems\ApiClient\Client\Strategies\NeverCacheStrategy;
 use Illuminate\Support\Arr;
 
-class MyMethod extends AbstractMethod
+class MyMethod extends AbstractSoapMethod
 {
     protected const METHOD_NAME = 'MyMethod';
 
     public function __construct(
         MyService $service,
         NeverCacheStrategy $cacheStrategy,
-        PlugManager $plugManager
+        PlugManager $plugManager,
     ) {
         parent::__construct($service, $cacheStrategy, $plugManager);
     }
@@ -172,7 +169,7 @@ class MyRepository
     public function getMyDtoById(string $id): MyDto
     {
         $myEndpoint = new MyEndpoint(config('api-client.endpoints.myEndpoint.url'));
-        $myService = new MyService($myEndpoint, collect());
+        $myService = new MyService($myEndpoint, collect(), collect(), new ApiClient());
         $myMethod = new MyMethod($myService, new NeverCacheStrategy());
         $myPayload = new MyPayload();
         $myPayload->setId($id);

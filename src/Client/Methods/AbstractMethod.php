@@ -2,7 +2,6 @@
 
 namespace CubeSystems\ApiClient\Client\Methods;
 
-use CodeDredd\Soap\Client\Response as RawResponse;
 use CubeSystems\ApiClient\Client\Contracts\CacheStrategy;
 use CubeSystems\ApiClient\Client\Contracts\Method;
 use CubeSystems\ApiClient\Client\Contracts\Payload;
@@ -11,14 +10,16 @@ use CubeSystems\ApiClient\Client\Contracts\Response;
 use CubeSystems\ApiClient\Client\Contracts\Service;
 use CubeSystems\ApiClient\Client\Plugs\PlugManager;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
-use CubeSystems\ApiClient\Events\ApiCalled;
 use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
 use CubeSystems\ApiClient\Events\ResponseRetrievedFromPlug;
+use GuzzleHttp\TransferStats;
 
 abstract class AbstractMethod implements Method
 {
+    protected const METHOD_NAME = '';
+
     public function __construct(
-        private Service $service,
+        protected Service $service,
         private CacheStrategy $cacheStrategy,
         private PlugManager $plugManager,
     ) {
@@ -68,8 +69,9 @@ abstract class AbstractMethod implements Method
     {
         $this->cacheStrategy->forgetHierarchy($payload->getCacheHierarchyKey());
     }
+    abstract protected function retrieveFromRemote(Payload $payload): Response;
 
-    abstract protected function toResponse(array $rawResponse, int $httpCode): Response;
+    abstract protected function toResponse(array $rawResponse, array $rawHeaders, int $httpCode): Response;
 
     private function isUsingCache(Payload $payload): bool
     {
@@ -87,7 +89,8 @@ abstract class AbstractMethod implements Method
 
         $response = $this->toResponse(
             $plug->getResponse(),
-            $plug->getStatusCode()
+            $plug->getResponseHeaders(),
+            $plug->getStatusCode(),
         );
 
         ResponseRetrievedFromPlug::dispatch(
@@ -117,89 +120,25 @@ abstract class AbstractMethod implements Method
         return $response;
     }
 
-    private function retrieveFromRemote(Payload $payload): Response
-    {
-        $microtimeFrom = microtime(true);
-
-        $rawResponse = $this->service->getClient()->call(
-            $this->getName(),
-            $payload->toArray()
-        );
-
-        $microtimeTo = microtime(true);
-
-        $rawDataArray = $this->getRawDataArray($rawResponse);
-
-        $response = $this->toResponse($rawDataArray, $rawResponse->status());
-
-        $this->dispatchServiceCalledEvent(
-            $payload,
-            $rawResponse,
-            $response,
-            $microtimeFrom,
-            $microtimeTo
-        );
-
-        return $response;
-    }
-
-    private function dispatchServiceCalledEvent(
-        Payload $payload,
-        RawResponse $rawResponse,
-        Response $response,
-        float $microtimeFrom,
-        float $microtimeTo
-    ): void {
-        $debugInfo = $this->service->getClient()->debugLastSoapRequest();
-
-        $stats = $this->makeCallStats(
-            $rawResponse,
-            $debugInfo,
-            $microtimeFrom,
-            $microtimeTo
-        );
-
-        ApiCalled::dispatch(
-            $this,
-            $payload,
-            $response,
-            $stats
-        );
-    }
-
     protected function makeCallStats(
-        RawResponse $rawResponse,
-        array $debugInfo,
+        TransferStats $transferStats,
         float $microtimeFrom,
-        float $microtimeTo
+        float $microtimeTo,
     ): CallStats {
         $stats = new CallStats();
 
+        $request = $transferStats->getRequest();
+        $response = $transferStats->getResponse();
+
         $stats
-            ->setRequestString($debugInfo['request']['body'])
-            ->setRequestHeaders(collect($rawResponse->transferStats->getRequest()->getHeaders()))
-            ->setResponseString($debugInfo['response']['body'])
-            ->setResponseHeaders(collect($rawResponse->transferStats->getResponse()->getHeaders()))
+            ->setRequestString((string) $request->getBody())
+            ->setRequestHeaders(collect($request->getHeaders()))
+            ->setResponseString((string) $response?->getBody())
+            ->setResponseHeaders(collect($response?->getHeaders()))
             ->setMicrotimeStart($microtimeFrom)
             ->setMicrotimeFinish($microtimeTo)
-            ->setTransferStats($rawResponse->transferStats);
+            ->setTransferStats($transferStats);
 
         return $stats;
-    }
-
-    private function getRawDataArray(RawResponse $rawResponse): array
-    {
-        $rawDataArray = $rawResponse->json();
-
-        if (is_array($rawDataArray)) {
-            return $rawDataArray;
-        }
-
-        return [
-            'status' => [
-                'code' => $rawResponse->status(),
-                'message' => $rawResponse->body()
-            ]
-        ];
     }
 }

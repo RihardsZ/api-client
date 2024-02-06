@@ -6,13 +6,19 @@ use CubeSystems\ApiClient\Client\Contracts\Plug;
 
 class TestPlug implements Plug
 {
-    public function __construct(private array $response)
-    {
+    public function __construct(
+        private array $response
+    ) {
     }
 
     public function getResponse(): array
     {
         return $this->response;
+    }
+
+    public function getResponseHeaders(): array
+    {
+        return [];
     }
 
     public function getStatusCode(): int
