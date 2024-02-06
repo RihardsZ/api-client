@@ -1,27 +1,32 @@
 <?php
 
 use CodeDredd\Soap\Facades\Soap;
-use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
 use CubeSystems\ApiClient\Events\ApiCalled;
-use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestEndpoint;
-use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithoutCache;
-use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithRequestCache;
-use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithTimeIntervalCache;
+use CubeSystems\ApiClient\Events\ResponseRetrievedFromCache;
+use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestSoapEndpoint;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap\TestMethodWithoutCache;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap\TestMethodWithRequestCache;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap\TestMethodWithTimeIntervalCache;
 use CubeSystems\ApiClient\Tests\TestImplementation\Payloads\TestPayload;
 use Illuminate\Support\Facades\Event;
-
 use function Spatie\PestPluginTestTime\testTime;
 
 beforeEach(function () {
     Soap::fake(function ($request) {
         return match ($request->offsetGet('parameter')) {
             'error' => Soap::response([
-                'status' => 'E',
+                'status' => [
+                    'code' => 'E',
+                    'message' => 'Error',
+                ],
             ]),
 
             'technical error' => Soap::response(
                 [
-                    'status' => 'T',
+                    'status' => [
+                        'code' => 'T',
+                        'message' => 'Technical error',
+                    ],
                 ],
                 500
             ),
@@ -29,13 +34,16 @@ beforeEach(function () {
             default => Soap::response([
                 'name' => 'Test tester',
                 'age' => 21,
-                'status' => 'S',
+                'status' => [
+                    'code' => 'S',
+                    'message' => 'Success',
+                ]
             ]),
         };
     });
 
-    app()->singleton(TestEndpoint::class, function () {
-        return new TestEndpoint('https://www.w3schools.com');
+    app()->singleton(TestSoapEndpoint::class, function () {
+        return new TestSoapEndpoint('https://www.w3schools.com');
     });
 
     Event::fake();

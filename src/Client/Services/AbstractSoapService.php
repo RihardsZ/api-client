@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CubeSystems\ApiClient\Client\Services;
 
 use CodeDredd\Soap\SoapClient as BaseClient;
@@ -9,7 +11,7 @@ use CubeSystems\ApiClient\Client\Contracts\Endpoint;
 use CubeSystems\ApiClient\Client\Contracts\Service;
 use Illuminate\Support\Collection;
 
-abstract class AbstractService implements Service
+abstract class AbstractSoapService implements Service
 {
     protected const SERVICE_PATH = '';
 
@@ -19,6 +21,7 @@ abstract class AbstractService implements Service
         private Endpoint $endpoint,
         /** @var Collection<Header> */
         private Collection $headers,
+        private Collection $options,
         ApiClient $client
     ) {
         $this->client = $client
@@ -36,9 +39,14 @@ abstract class AbstractService implements Service
         return $this->headers;
     }
 
+    public function getOptions(): Collection
+    {
+        return $this->options;
+    }
+
     public function getUrl(): string
     {
-        return $this->endpoint->getWsdlUrl($this->getPath());
+        return $this->endpoint->getAbsoluteUrl($this->getPath());
     }
 
     private function getPath(): string

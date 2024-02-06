@@ -1,17 +1,19 @@
 <?php
 
-namespace CubeSystems\ApiClient\Tests\TestImplementation\Methods;
+declare(strict_types=1);
+
+namespace CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap;
 
 use CubeSystems\ApiClient\Client\Cache\RequestCacheStrategy;
 use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlugManager;
-use CubeSystems\ApiClient\Tests\TestImplementation\Services\TestService;
+use CubeSystems\ApiClient\Tests\TestImplementation\Services\TestSoapService;
 
-class TestMethodWithRequestCache extends TestMethod
+class TestMethodWithPlug extends TestMethod
 {
-    protected const METHOD_NAME = 'TestMethodWithRequestCache';
+    protected const METHOD_NAME = 'TestMethodWithPlug';
 
     public function __construct(
-        TestService $service,
+        TestSoapService $service,
         RequestCacheStrategy $cacheStrategy,
         TestPlugManager $plugManager
     ) {

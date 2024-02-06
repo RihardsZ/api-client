@@ -1,33 +1,74 @@
 <?php
 
+declare(strict_types=1);
+
 use CodeDredd\Soap\Facades\Soap;
-use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestEndpoint;
-use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithoutCache;
-use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithPlug;
-use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithRequestCache;
+use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestRestEndpoint;
+use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestSoapEndpoint;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap\TestMethodWithoutCache;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap\TestMethodWithPlug;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap\TestMethodWithRequestCache;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Rest\TestMethodWithoutCache as RestMethodWithoutCache;
 use CubeSystems\ApiClient\Tests\TestImplementation\Payloads\TestPayload;
 use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlug;
 use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlugManager;
 use CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestEntity;
 use CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestResponse;
-
+use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
     Soap::fake(function ($request) {
         return match ($request->offsetGet('parameter')) {
             'error' => Soap::response([
-                'status' => 'E',
+                'status' => [
+                    'code' => 'E',
+                    'message' => 'Error',
+                ],
             ]),
 
             'technical error' => Soap::response(
+                [
+                    'status' => [
+                        'code' => 'T',
+                        'message' => 'Technical error',
+                    ],
+                ],
+                500
+            ),
+
+            'empty' => Soap::response(null, 500),
+
+            default => Soap::response([
+                'name' => 'Test tester',
+                'age' => 21,
+                'status' => [
+                    'code' => 'S',
+                    'message' => 'Success',
+                ]
+            ]),
+        };
+    });
+
+    app()->singleton(TestSoapEndpoint::class, function () {
+        return new TestSoapEndpoint('https://www.w3schools.com');
+    });
+
+    Http::fake(function (HttpRequest $request) {
+        return match ($request->offsetGet('parameter')) {
+            'error' => Http::response([
+                'status' => 'E',
+            ]),
+
+            'technical error' => Http::response(
                 [
                     'status' => 'T',
                 ],
                 500
             ),
 
-            default => Soap::response([
+            default => Http::response([
                 'name' => 'Test tester',
                 'age' => 21,
                 'status' => 'S',
@@ -35,14 +76,14 @@ beforeEach(function () {
         };
     });
 
-    app()->singleton(TestEndpoint::class, function () {
-        return new TestEndpoint('https://www.w3schools.com');
+    app()->singleton(TestRestEndpoint::class, function () {
+        return new TestRestEndpoint('https://www.w3schools.com');
     });
 
     Event::fake();
 });
 
-it('makes meaningful response when calling is successful', function () {
+it('makes meaningful response when soap calling is successful', function () {
     /** @var TestPayload $payload */
     $payload = app(TestPayload::class);
     $payload->setParameter('test');
@@ -62,7 +103,27 @@ it('makes meaningful response when calling is successful', function () {
             ->getAge()->toBe(21);
 });
 
-it('makes meaningful response when retrieving successful response from cache', function () {
+it('makes meaningful response when calling rest is successful', function () {
+    /** @var TestPayload $payload */
+    $payload = app(TestPayload::class);
+    $payload->setParameter('test');
+
+    /** @var RestMethodWithoutCache $method */
+    $method = app(RestMethodWithoutCache::class);
+
+    /** @var TestResponse $response */
+    $response = $method->call($payload);
+
+    expect($response)->toBeInstanceOf(TestResponse::class)
+        ->and($response->getStatusInfo())
+        ->isSuccess()->toBeTrue()
+        ->and($response->getEntity())
+        ->toBeInstanceOf(TestEntity::class)
+        ->getName()->toBe('Test tester')
+        ->getAge()->toBe(21);
+});
+
+it('makes meaningful response when retrieving successful soap call response from cache', function () {
     /** @var TestPayload $payload */
     $payload = app(TestPayload::class);
     $payload->setParameter('test');
@@ -86,7 +147,24 @@ it('makes meaningful response when retrieving successful response from cache', f
             ->getAge()->toBe(21);
 });
 
-it('retrieves response from plug if one exists, proceeds to call method otherwise', function () {
+it('makes meaningful error response when retrieving empty soap call response from remote', function () {
+    /** @var TestPayload $payload */
+    $payload = app(TestPayload::class);
+    $payload->setParameter('empty');
+
+    /** @var TestMethodWithRequestCache $method */
+    $method = app(TestMethodWithRequestCache::class);
+
+    /** @var TestResponse $response */
+    $response = $method->call($payload);
+
+    expect($response)->toBeInstanceOf(TestResponse::class)
+        ->and($response->getStatusInfo())
+        ->isSuccess()->toBeFalse()
+        ->isTechnicalError()->toBeTrue();
+});
+
+it('retrieves response from plug if one exists, proceeds to call soap method otherwise', function () {
     /** @var TestPayload $payload */
     $payload = app(TestPayload::class);
 
@@ -95,8 +173,11 @@ it('retrieves response from plug if one exists, proceeds to call method otherwis
         'plugs' => [
             'TestMethodWithPlug' => new TestPlug([
                 'owo' => 'uwu',
-                'status' => 'S',
                 'name' => 'Test',
+                'status' => [
+                    'code' => 'S',
+                    'message' => 'Success',
+                ],
             ]),
         ],
     ]);
@@ -113,7 +194,7 @@ it('retrieves response from plug if one exists, proceeds to call method otherwis
     expect($methodWithoutPlug->call($payload)->getRawData())->not()->toHaveKey('owo');
 });
 
-it('throws exception on accessing entity when having unsuccessful response', function () {
+it('throws exception on accessing entity when having unsuccessful soap call response', function () {
     /** @var TestPayload $payload */
     $payload = app(TestPayload::class);
     $payload->setParameter('error');

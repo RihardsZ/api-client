@@ -1,15 +1,15 @@
 <?php
 
 use CubeSystems\ApiClient\Client\Stats\CallStats;
-use CubeSystems\ApiClient\Debugbar\DebugbarEntry;
 use CubeSystems\ApiClient\Debugbar\ApiCollector;
-use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestEndpoint;
-use CubeSystems\ApiClient\Tests\TestImplementation\Methods\TestMethodWithoutCache;
+use CubeSystems\ApiClient\Debugbar\DebugbarEntry;
+use CubeSystems\ApiClient\Tests\TestImplementation\Endpoints\TestSoapEndpoint;
+use CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap\TestMethodWithoutCache;
 use CubeSystems\ApiClient\Tests\TestImplementation\Payloads\TestPayload;
 
 beforeEach(function () {
-    app()->singleton(TestEndpoint::class, function () {
-        return new TestEndpoint('https://www.w3schools.com');
+    app()->singleton(TestSoapEndpoint::class, function () {
+        return new TestSoapEndpoint('https://www.w3schools.com');
     });
 });
 

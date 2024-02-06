@@ -1,19 +1,21 @@
 <?php
 
-namespace CubeSystems\ApiClient\Tests\TestImplementation\Methods;
+declare(strict_types=1);
+
+namespace CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap;
 
 use CubeSystems\ApiClient\Client\Cache\NeverCacheStrategy;
-use CubeSystems\ApiClient\Tests\TestImplementation\Plugs\TestPlugManager;
-use CubeSystems\ApiClient\Tests\TestImplementation\Services\TestService;
+use CubeSystems\ApiClient\Client\Plugs\PlugManager;
+use CubeSystems\ApiClient\Tests\TestImplementation\Services\TestSoapService;
 
 class TestMethodWithoutCache extends TestMethod
 {
     protected const METHOD_NAME = 'TestMethodWithoutCache';
 
     public function __construct(
-        TestService $service,
+        TestSoapService $service,
         NeverCacheStrategy $cacheStrategy,
-        TestPlugManager $plugManager
+        PlugManager $plugManager
     ) {
         parent::__construct($service, $cacheStrategy, $plugManager);
     }

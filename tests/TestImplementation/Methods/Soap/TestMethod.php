@@ -1,29 +1,33 @@
 <?php
 
-namespace CubeSystems\ApiClient\Tests\TestImplementation\Methods;
+declare(strict_types=1);
 
-use CodeDredd\Soap\Client\Response as RawResponse;
-use CubeSystems\ApiClient\Client\Methods\AbstractMethod;
+namespace CubeSystems\ApiClient\Tests\TestImplementation\Methods\Soap;
+
+use CubeSystems\ApiClient\Client\Methods\AbstractSoapMethod;
 use CubeSystems\ApiClient\Client\Responses\ResponseStatusInfo;
 use CubeSystems\ApiClient\Client\Stats\CallStats;
 use CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestEntity;
 use CubeSystems\ApiClient\Tests\TestImplementation\Responses\TestResponse;
+use GuzzleHttp\TransferStats;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
-class TestMethod extends AbstractMethod
+class TestMethod extends AbstractSoapMethod
 {
-    protected function toResponse(array $rawResponse, int $httpCode): TestResponse
+    protected function toResponse(array $rawResponse, array $rawHeaders, int $httpCode): TestResponse
     {
         $response = new TestResponse();
         $response->setRawData($rawResponse);
 
         $status = new ResponseStatusInfo();
 
-        $statusCode = Arr::get($rawResponse, 'status');
+        $statusCode = Arr::get($rawResponse, 'status.code');
+        $statusMessage = Arr::get($rawResponse, 'status.message');
 
-        if ($httpCode !== SymfonyResponse::HTTP_OK || $statusCode === 'T') {
+        if ($httpCode !== SymfonyResponse::HTTP_OK || $statusCode === 'T' || $statusCode === null) {
             $status->setTechnicalErrorStatus();
+            $status->setMessage($statusMessage);
             $response->setStatusInfo($status);
 
             return $response;
@@ -46,8 +50,7 @@ class TestMethod extends AbstractMethod
     }
 
     protected function makeCallStats(
-        RawResponse $rawResponse,
-        array $debugInfo,
+        ?TransferStats $transferStats,
         float $microtimeFrom,
         float $microtimeTo
     ): CallStats {

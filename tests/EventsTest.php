@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use CubeSystems\ApiClient\Client\Contracts\Method;
 use CubeSystems\ApiClient\Client\Contracts\Payload;
 use CubeSystems\ApiClient\Client\Contracts\Response;
