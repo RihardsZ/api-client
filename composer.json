@@ -4,8 +4,9 @@
     "keywords": [
         "laravel",
         "api",
-        "services",
-        "soap"
+        "soap",
+        "rest",
+        "caching"
     ],
     "license": "MIT",
     "authors": [
